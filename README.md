@@ -8,6 +8,8 @@ usage: train_*.py [-h] [--train_dir TRAIN_DIR] [--restore RESTORE]
                        save
 ```
 
+The annotated dataset used with this code can be found at: https://dataverse.scholarsportal.info/dataset.xhtml?persistentId=doi:10.5683/SP/NTUOK9
+
 To use the `--email` functionality, create a `.env` file in the root of
 this repo with the following format:
 
