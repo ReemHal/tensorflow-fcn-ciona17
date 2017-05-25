@@ -1,0 +1,38 @@
+name: tf101gpu-py35
+channels: !!python/tuple
+- !!python/unicode
+  'conda-forge'
+- !!python/unicode
+  'defaults'
+dependencies:
+- conda-forge::ca-certificates=2017.1.23=0
+- conda-forge::certifi=2017.1.23=py35_0
+- conda-forge::ncurses=5.9=10
+- conda-forge::openssl=1.0.2h=3
+- conda-forge::pip=9.0.1=py35_0
+- conda-forge::python=3.5.3=1
+- conda-forge::readline=6.2=0
+- conda-forge::setuptools=33.1.1=py35_0
+- conda-forge::sqlite=3.13.0=1
+- conda-forge::tk=8.5.19=1
+- conda-forge::wheel=0.29.0=py35_0
+- conda-forge::xz=5.2.2=0
+- conda-forge::zlib=1.2.11=0
+- pip:
+  - appdirs==1.4.3
+  - cycler==0.10.0
+  - matplotlib==2.0.0
+  - natsort==5.0.2
+  - numpy==1.12.1
+  - olefile==0.44
+  - packaging==16.8
+  - pillow==4.1.0
+  - protobuf==3.2.0
+  - pyparsing==2.2.0
+  - python-dateutil==2.6.0
+  - pytz==2017.2
+  - six==1.10.0
+  - tensorflow-gpu==1.0.1
+  - tqdm==4.11.2
+prefix: ~/anaconda2/envs/tf101gpu-py35
+
