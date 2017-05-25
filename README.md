@@ -1,3 +1,18 @@
+
+**Installing**
+
+I recommend installing [Anaconda](https://www.continuum.io/downloads) to manage dependencies in isolated *environments*. Once you have downloaded the latest version of Anaconda for your OS, you can use the provided `environment.yml` file to automatically install the latest compatible packages for running the scripts in this repo.
+
+Simply run:
+
+```
+conda env create -f environment.yml
+
+(downloads packages)
+
+source activate tf101gpu-py35
+```
+
 There are three different files for training:
 
 * __train_ph_iou__ - train by manually feeding batches of images through tensorflow placeholders mechanism, uses intersection-over-union loss approximation from http://www.cs.umanitoba.ca/~ywang/papers/isvc16.pdf - only supports binary classification
