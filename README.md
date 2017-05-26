@@ -29,6 +29,14 @@ usage: train_*.py [-h] [--train_dir TRAIN_DIR] [--restore RESTORE]
                        save
 ```
 
+where:
+
+* *MODEL* defines the size of the filter used in the VGG16 network. It can be xs, s, or '' for VGG16 with the smallest filter (filter size 16X32), VGG16 with filter size 32X64, or VGG16 with a 64X128 filter. Default is ''.
+* *LOSS* defines the loss function used to optimize the network. It can be iou for Intersection-over-Union loss or xent for cross-entropy loss. Default is iou.
+* *FMT* defines the format of the input images. It can be 'lab' for cielab images, or 'rgb'. Default is lab.
+* *PLOT* is a boolean to show predictions every 100 steps. It can be either True or False. Default is False. 
+* *save* is the subdir to log model and events.
+
 The annotated dataset used with this code can be found at: https://dataverse.scholarsportal.info/dataset.xhtml?persistentId=doi:10.5683/SP/NTUOK9
 
 To use the `--email` functionality, create a `.env` file in the root of
@@ -39,4 +47,4 @@ EMAIL:<user>@gmail.com
 PASSWORD:<password>
 ```
 
-Note that only gmail is supported for now. If you are a MLRG member ask me for permission to use the noreply.jobs.gpu@gmail.com account so that you don't have to insecure your personal gmail. 
+Note that only gmail is supported for now. If you are a UOGuelph MLRG member ask me for permission to use the noreply.jobs.gpu@gmail.com account so that you don't have to insecure your personal gmail. 
