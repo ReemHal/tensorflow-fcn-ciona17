@@ -41,9 +41,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        'save', help='subdir to log model and events')
+        'sub', help='Sub-directory under --train_dir for logging events and checkpointing.   \
+        Would usually give a unique name (e.g initial learning rate used) so that tensorboard \
+        results are more easily interpreted')
     parser.add_argument(
-        '--train_dir', help='base path', default='/scratch/gallowaa/logs/vgg7xs/')
+        '--max_steps', help='maximum number of steps for training', type=int, default=50000)
+    parser.add_argument(
+        '--max_patience', help='number of consecutive times validation error is allowed to decrease before stopping', type=int, default=10)
+    parser.add_argument(
+        '--train_dir', help='root path for logging events and checkpointing', default='~/logs/vgg7/rgb/iou/')
     parser.add_argument(
         '--restore', help='where to load model checkpoints from')
     parser.add_argument(
@@ -55,13 +61,13 @@ if __name__ == '__main__':
     parser.add_argument(
         '--lr', help='learning rate', type=float, default=1e-5)
     parser.add_argument(
-        '--model', help='the model variant', default='')
+        '--model', help="model variant (either '', 's' - slim filters, 'xs' - extra slim filters)", default='')
     parser.add_argument(
-        '--loss', help='loss type', default='xent')
+        '--loss', help='loss type (e.g iou loss or cross-entropy)', default='xent')
     parser.add_argument(
-        '--fmt', help='input format', default='lab')
+        '--fmt', help='input image format (either rgb or lab)', default='lab')
     parser.add_argument(
-        '--plot', help='should show predictions every 100 steps')
+        '--plot', help='periodically plot validation progress during training')
     parser.add_argument(
         '--root_path', help="path to images", default="/export/mlrg/gallowaa/Documents/ciona-net/data/")
     parser.add_argument(
@@ -211,7 +217,7 @@ if __name__ == '__main__':
         try:
             step = sess.run(global_step)
             print(step)
-            while not coord.should_stop() and step < 750010 and patience < 10:
+            while not coord.should_stop() and step < args.max_steps and patience < args.max_patience:
 
                 start_time = time.time()
 
