@@ -61,9 +61,9 @@ if __name__ == '__main__':
     parser.add_argument(
         '--loss', help='loss type (e.g iou loss or cross-entropy)', default='iou')
     parser.add_argument(
-        '--fmt', help='input image format (either rgb or lab)', default='lab')
+        '--fmt', help='input image format (either rgb or lab)', default='rgb')
     parser.add_argument(
-        '--plot', help='periodically plot validation progress during training')
+        '--plot', help='periodically plot validation progress during training', action="store_true")
     parser.add_argument(
         '--train_record', default='~/tfrecord/ciona-17-rgb-train.tfrecords')
     parser.add_argument(

@@ -9,7 +9,7 @@ import argparse
 
 import matplotlib.pyplot as plt
 
-from models.vgg6_fc6_512_deconv import vgg16
+from models.vgg7_fc6_512_deconv import vgg16
 
 from utils import input_pipeline_xent, input_pipeline_miou, init_3subplot, update_plots
 
@@ -18,45 +18,31 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             """Whether to log device placement.""")
 
-tf.app.flags.DEFINE_integer('max_steps', 10000,
-                            """Number of batches to run.""")
-
-tf.app.flags.DEFINE_integer('num_epochs', 15000,
-                            """Number of epochs.""")
-
 tf.app.flags.DEFINE_integer('batch_size', 1,
                             """Batch size.""")
-
-tf.app.flags.DEFINE_string('train_record',
-                           '/scratch/gallowaa/tfrecord/ciona-16-rgb-702.tfrecords',
-                           """Training tfrecord file.""")
-
-tf.app.flags.DEFINE_string('val_record',
-                           '/scratch/gallowaa/tfrecord/ciona-16-rgb-334.tfrecords',
-                           """Validation tfrecord file.""")
-
-tf.app.flags.DEFINE_string('image_path',
-                           '/export/mlrg/gallowaa/Documents/ciona-net-images/multi/vgg7xs-fc6-512-multi',
-                           """Image name path""")
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        '--restore', help='where to load model checkpoints from')
+        '--path', help='path to checkpoints folder')
+    parser.add_argument(
+        '--restore', help='specific checkpoint to use (e.g model.ckpt-99000), otherwise use latest')
     parser.add_argument(
         '--gpu', help='the physical ids of GPUs to use')
     parser.add_argument(
         '--out', help='number of semantic classes', type=int, default=1)
     parser.add_argument(
-        '--plot', help='should show predictions every 100 steps')
+        '--fmt', help='input image format (either rgb or lab)', default='rgb')
     parser.add_argument(
-        '--model', help='the model variant', default='')
+        '--model', help='the model variant (should match checkpoint otherwise will crash)', default='')
     parser.add_argument(
-        '--savepath', default='/home/angus/Documents/CVPR/img/')
+        '--savepath', default='~/Documents/img/')
     parser.add_argument(
-        '--val_record', default='/scratch/gallowaa/tfrecord/ciona-16-rgb-334.tfrecords')
+        '--plot', help='periodically plot validation progress during training', action="store_true")
+    parser.add_argument(
+        '--val_record', default='~/tfrecord/ciona-17-rgb-valid.tfrecords')
 
     args = parser.parse_args()
 
@@ -65,7 +51,7 @@ if __name__ == '__main__':
     if args.gpu:
         os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
 
-    out_path = 'vgg7' + args.model + '-' + str(args.out) + '-' 
+    #out_path = 'vgg7' + args.model + '-' + str(args.out) + '-' 
 
     with tf.Graph().as_default():
 
@@ -81,7 +67,7 @@ if __name__ == '__main__':
         else:
         '''
         val_images_batch, val_labels_batch = input_pipeline_miou(
-            args.val_record, FLAGS.batch_size, shuffle=False)
+            args.val_record, FLAGS.batch_size, args.fmt, shuffle=False)
 
         images_ph = tf.placeholder_with_default(
             val_images_batch, shape=[None, 224, 224, 3])
@@ -102,12 +88,11 @@ if __name__ == '__main__':
         # vgg = vgg16(args.out, images_ph, keep_prob)
 
         logits = vgg.up
-
         labels = tf.reshape(labels_ph, [-1])
-
         logits = tf.reshape(logits, [-1])
 
         # binarize the network output
+
         #prediction = tf.greater_equal(logits, 0.5)
         prediction = tf.cast(tf.greater_equal(
             logits, 0.5, name='thresh'), tf.int32)
@@ -130,9 +115,6 @@ if __name__ == '__main__':
         # Create a saver.
         saver = tf.train.Saver(tf.global_variables())  # v0.12
 
-        # Build the summary operation based on the TF collection of Summaries.
-        summary_op = tf.summary.merge_all()  # v0.12
-
         init = tf.global_variables_initializer()  # v0.12
         init_locals = tf.local_variables_initializer()  # v0.12
 
@@ -145,15 +127,12 @@ if __name__ == '__main__':
         coord = tf.train.Coordinator()
         threads = tf.train.start_queue_runners(coord=coord, sess=sess)
 
-        '''
-        summary_writer = tf.summary.FileWriter(outpath, sess.graph)  # v0.12
-        training_summary = tf.summary.scalar("train loss", total_loss)  # v0.12
-        validation_summary = tf.summary.scalar("val mIoU", mIoU_ph)  # v0.12
-        '''
-
         if args.restore:
-            print('Restoring the Network')
-            saver.restore(sess, tf.train.latest_checkpoint(args.restore))
+            print('Restoring the network from %s' % os.path.join(args.path, args.restore))
+            saver.restore(sess, tf.train.latest_checkpoint(os.path.join(args.path, args.restore)))
+        else:    
+            print('Restoring the network from path %s' % args.path)
+            saver.restore(sess, tf.train.latest_checkpoint(args.path))
 
         # saver.restore(sess, args.train_dir + '/run3/model.ckpt-99000')
 
@@ -163,7 +142,7 @@ if __name__ == '__main__':
             img_1, img_2, img_3 = init_3subplot()
 
         num_batches = 334
-        miou_list = np.zeros(num_batches / FLAGS.batch_size)
+        miou_list = np.zeros(int(num_batches / FLAGS.batch_size))
 
         try:
 
@@ -172,31 +151,32 @@ if __name__ == '__main__':
 
             while not coord.should_stop():
 
-                for k in xrange(num_batches):
+                for k in range(num_batches):
 
                     predimg = sess.run(prediction, feed_dict={keep_prob: 1.0})
+                    '''
                     res = sess.run([mIOU], feed_dict={keep_prob: 1.0})
-                    print res
+                    print(res)
                     miou_list[k] = res[0][0]
-
+                    '''
                     if args.plot:
 
                         myimg, mylbl = sess.run(
                             [val_images_batch, val_labels_batch])
                         '''
-                            predimg = sess.run(valid_prediction, feed_dict={
-                                               images_ph: myimg, labels_ph: mylbl, keep_prob: 1.0})
-                            '''
+                        predimg = sess.run(valid_prediction, feed_dict={
+                        images_ph: myimg, labels_ph: mylbl, keep_prob: 1.0})
+                        '''
 
                         # print '%.4f,' % miou_list[1:].mean()
 
                         update_plots(img_1, img_2, img_3, myimg, predimg, mylbl,
                                      FLAGS.batch_size, args.out)
 
-                        fname = out_path + str(k) + '.png'
+                        #fname = out_path + str(k) + '.png'
                         #fname = args.savepath + '-bs' + str(FLAGS.batch_size) + 'stp' + str(step) + '.png'
                         #plt.imsave(fname,img2)
-                        plt.savefig(fname)
+                        #plt.savefig(fname)
                         plt.pause(0.05)
 
         except tf.errors.OutOfRangeError:
