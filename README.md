@@ -15,9 +15,15 @@ source activate tf101gpu-py35
 
 There are three different files for training:
 
-* __train_ph_iou__ - train by manually feeding batches of images through tensorflow placeholders mechanism, uses intersection-over-union loss approximation from http://www.cs.umanitoba.ca/~ywang/papers/isvc16.pdf - only supports binary classification
-* __train_ph_xent__ - train by manually feeding batches of images through tensorflow placeholders mechanism, uses classic cross-entropy loss and supports arbitrary number of classes through `--out` argument. 
-* __train_q__ - train by tensorflow queue prefetching mechanism, used for normal RGB images. Supports both loss types. 
+* __train_ph_iou.py__ - train by manually feeding batches of images through tensorflow placeholders mechanism, uses intersection-over-union loss approximation from http://www.cs.umanitoba.ca/~ywang/papers/isvc16.pdf - only supports binary classification
+* __train_ph_xent.py__ - train by manually feeding batches of images through tensorflow placeholders mechanism, uses classic cross-entropy loss and supports arbitrary number of classes through `--out` argument. 
+* __train_q.py__ - train by tensorflow queue prefetching mechanism, used for normal RGB images. Supports both loss types. 
+
+If using `train_q.py`, you must create tfrecords first:
+
+```
+python preprocessing/rgb_to_byte_tfrecords.py --in_path <path/to/>ciona17_farm1_training1/ --out_path <path/to/>tfrecord/ --rec ciona17-rgb-train
+```
 
 Usage:
 
