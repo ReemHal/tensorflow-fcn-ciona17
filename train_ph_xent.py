@@ -63,7 +63,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--model', help="model variant (either '', 's' - slim filters, 'xs' - extra slim filters)", default='')
     parser.add_argument(
-        '--loss', help='loss type (e.g iou loss or cross-entropy)', default='iou')
+        '--loss', help='loss type (e.g iou loss or cross-entropy)', default='xent')
     parser.add_argument(
         '--fmt', help='input image format (either rgb or lab)', default='lab')
     parser.add_argument(
