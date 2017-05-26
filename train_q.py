@@ -29,9 +29,6 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             """Whether to log device placement.""")
 
-tf.app.flags.DEFINE_integer('max_steps', 10000,
-                            """Number of batches to run.""")
-
 tf.app.flags.DEFINE_integer('num_epochs', 15000,
                             """Number of epochs.""")
 
@@ -40,13 +37,19 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        'save', help='subdir to log model and events')
+        'sub', help='Sub-directory under --train_dir for logging events and checkpointing.   \
+        Would usually give a unique name (e.g initial learning rate used) so that tensorboard \
+        results are more easily interpreted')
     parser.add_argument(
-        '--train_dir', help='base path', default='/scratch/gallowaa/logs/vgg7xs/')
+        '--max_steps', help='maximum number of steps for training', type=int, default=50000)
     parser.add_argument(
-        '--restore', help='where to load model checkpoints from')
+        '--max_patience', help='number of consecutive times validation error is allowed to decrease before stopping', type=int, default=10)
     parser.add_argument(
-        '--gpu', help='the physical ids of GPUs to use')
+        '--train_dir', help='root path for logging events and checkpointing', default='~/logs/vgg7/rgb/iou/')
+    parser.add_argument(
+        '--restore', help='path to load model checkpoints from')
+    parser.add_argument(
+        '--gpu', help='physical id of GPUs to use')
     parser.add_argument(
         '--out', help='number of semantic classes', type=int, default=1)
     parser.add_argument(
@@ -54,23 +57,23 @@ if __name__ == '__main__':
     parser.add_argument(
         '--lr', help='learning rate', type=float, default=1e-5)
     parser.add_argument(
-        '--model', help='the model variant', default='')
+        '--model', help="model variant (either '', 's' - slim filters, 'xs' - extra slim filters)", default='')
     parser.add_argument(
-        '--loss', help='the model variant', default='iou')
+        '--loss', help='loss type (e.g iou loss or cross-entropy)', default='iou')
     parser.add_argument(
-        '--fmt', help='the model variant', default='lab')
+        '--fmt', help='input image format (either rgb or lab)', default='lab')
     parser.add_argument(
-        '--plot', help='should show predictions every 100 steps')
+        '--plot', help='periodically plot validation progress during training')
     parser.add_argument(
-        '--train_record', default='/scratch/gallowaa/tfrecord/ciona-16-rgb-702.tfrecords')
+        '--train_record', default='~/tfrecord/ciona-17-rgb-train.tfrecords')
     parser.add_argument(
-        '--val_record', default='/scratch/gallowaa/tfrecord/ciona-16-rgb-334.tfrecords')
+        '--val_record', default='~/tfrecord/ciona-17-rgb-valid.tfrecords')
     parser.add_argument(
-        '--email', help="should send an email with results when job finished", action="store_true")
+        '--email', help="send an email with results when job finished, requires .env", action="store_true")
 
     args = parser.parse_args()
 
-    outpath = os.path.join(args.train_dir, args.save)
+    outpath = os.path.join(args.train_dir, args.sub)
 
     if args.gpu:
         os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
@@ -215,7 +218,7 @@ if __name__ == '__main__':
         try:
             step = sess.run(global_step)
             print(step)
-            while not coord.should_stop() and step < 750010 and patience < 10:
+            while not coord.should_stop() and step < args.max_steps and patience < args.max_patience:
 
                 start_time = time.time()
                 _, train_loss, train_summ = sess.run(
