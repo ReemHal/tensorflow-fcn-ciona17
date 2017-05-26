@@ -21,12 +21,18 @@ There are three different files for training:
 
 If using `train_q.py`, you must create tfrecords first:
 
+training - should result in a 140.9MB \*.tfrecords file
 ```
 python preprocessing/rgb_to_byte_tfrecords.py --in_path <path/to/>ciona17_farm1_training1/ --out_path <path/to/>tfrecord/ --rec ciona17-rgb-train
 ```
+validation - should result in a 67.1MB \*.tfrecords file
+```
+python preprocessing/rgb_to_byte_tfrecords.py --in_path <path/to/>ciona17_farm1_validatio
+n/ --out_path <path/to/>tfrecord/ --rec ciona17-rgb-valid
+```
 
-Usage:
 
+Then, usage of training scripts:
 ```
 usage: train_*.py [-h] [--train_dir TRAIN_DIR] [--restore RESTORE]
                        [--gpu GPU] [--out OUT] [--bs BS] [--lr LR]
