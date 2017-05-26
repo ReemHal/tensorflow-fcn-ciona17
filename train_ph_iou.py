@@ -27,9 +27,6 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             """Whether to log device placement.""")
 
-tf.app.flags.DEFINE_integer('max_steps', 10000,
-                            """Number of batches to run.""")
-
 tf.app.flags.DEFINE_integer('num_epochs', 15000,
                             """Number of epochs.""")
 
@@ -43,6 +40,8 @@ if __name__ == '__main__':
 
     parser.add_argument(
         'save', help='subdir to log model and events')
+    parser.add_argument(
+        '--max_steps', help='maximum number of steps for training', type=int, default=50000)
     parser.add_argument(
         '--train_dir', help='base path', default='/scratch/gallowaa/logs/')
     parser.add_argument(
@@ -206,7 +205,7 @@ if __name__ == '__main__':
         try:
             step = sess.run(global_step)
             print(step)
-            while not coord.should_stop() and step < 10 and patience < 10:
+            while not coord.should_stop() and step < args.max_steps and patience < 10:
 
                 start_time = time.time()
 
