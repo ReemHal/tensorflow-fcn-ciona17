@@ -45,7 +45,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--max_patience', help='number of consecutive times validation error is allowed to decrease before stopping', type=int, default=10)
     parser.add_argument(
-        '--train_dir', help='root path for logging events and checkpointing', default='~/logs/vgg7/rgb/iou/')
+        '--train_dir', help='root path for logging events and checkpointing', default='logs/vgg7/rgb/iou/')
     parser.add_argument(
         '--restore', help='path to load model checkpoints from')
     parser.add_argument(
@@ -65,9 +65,9 @@ if __name__ == '__main__':
     parser.add_argument(
         '--plot', help='periodically plot validation progress during training', action="store_true")
     parser.add_argument(
-        '--train_record', default='~/tfrecord/ciona-17-rgb-train.tfrecords')
+        '--train_record', default='tfrecord/ciona-17-rgb-train.tfrecords')
     parser.add_argument(
-        '--val_record', default='~/tfrecord/ciona-17-rgb-valid.tfrecords')
+        '--val_record', default='tfrecord/ciona-17-rgb-valid.tfrecords')
     parser.add_argument(
         '--email', help="send an email with results when job finished, requires .env", action="store_true")
 
